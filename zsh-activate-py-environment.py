@@ -92,6 +92,7 @@ def activate():
 
 
 def deactivate():
+    __print_debug("deactivate()")
     conda_environment_name = environ.get("CONDA_DEFAULT_ENV", "")
 
     if environ.get("VIRTUAL_ENV", ""):
@@ -105,6 +106,7 @@ def deactivate():
 
 
 def link(environment_type, name_or_path):
+    __print_debug(f"link(\"{environment_type}\", \"{name_or_path}\")")
     if any([linked_env_file in listdir() for linked_env_file in LINKED_ENV_FILES]):
         raise Exception(
             "This directory is already linked! You can remove this by using 'unlink_py_environment'"
@@ -120,6 +122,7 @@ def link(environment_type, name_or_path):
 
 
 def unlink():
+    __print_debug(f"unlink()")
     linked_files_in_working_directory = [file for file in LINKED_ENV_FILES if isfile(file)]
 
     if linked_files_in_working_directory:
@@ -150,7 +153,7 @@ def __return_command(shell_command):
 def __find_nearest_environment_file(
     directory=getcwd(), priority=[LINKED_TYPE, POETRY_TYPE, VENV_TYPE, CONDA_TYPE]
 ):
-
+    __print_debug(f"__find_nearest_environment_file(\"{directory}\", {priority})")
     if any([environment_type not in TYPE_TO_FILES.keys() for environment_type in priority]) or any(
         [type(environment_type) != str for environment_type in priority]
     ):
@@ -177,6 +180,7 @@ def __find_nearest_environment_file(
 
 
 def __parse_linked_environment_file(linked_environment_file):
+    __print_debug(f"__parse_linked_environment_file(\"{linked_environment_file}\")")
     if not isfile(linked_environment_file):
         raise ValueError(
             f"Found linked environment file ist not a file. Check: {linked_environment_file}"
@@ -199,6 +203,7 @@ def __parse_linked_environment_file(linked_environment_file):
 
 
 def __check_dependencies(command):
+    __print_debug(f"__check_dependencies(\"{command}\")")
     if which(command):
         return True
     else:
@@ -207,10 +212,12 @@ def __check_dependencies(command):
 
 
 def __print_activation_message(environment_type):
+    __print_debug(f"__print_activation_message(\"{environment_type}\")")
     __print_information(f"\n🐍 Try to activate '{environment_type}' environment ...\n")
 
 
 def __handle_environment_file(type, environment_file_or_name):
+    __print_debug(f"__handle_environment_file(\"{type}\", \"{environment_file_or_name}\")")
     if type == LINKED_TYPE:
         # either path to poetry/virtualenv or conda environment name.
         environment_type, environment_path_or_name = __parse_linked_environment_file(
