@@ -42,6 +42,7 @@ FILE_TO_TYPE = {
 ##########################
 ##### Main Functions #####
 
+
 def main():
     # TODO: add custom print usage function
     parser = ArgumentParser(
@@ -71,7 +72,7 @@ def main():
     args = parser.parse_args()
     args_without_filename = argv[1:]
     quoted_args = [f'"{arg}"' for arg in args_without_filename]
-    as_log_message = ', '.join(quoted_args)
+    as_log_message = ", ".join(quoted_args)
     __print_debug(f"main({as_log_message})")
     args.command_function(
         # call given command function with parameters
@@ -88,7 +89,9 @@ def activate():
     type_and_environment_file = __find_nearest_environment_file()
 
     if type_and_environment_file:
-        __handle_environment_file(type_and_environment_file[0], type_and_environment_file[1])
+        __handle_environment_file(
+            type_and_environment_file[0], type_and_environment_file[1]
+        )
 
 
 def deactivate():
@@ -106,7 +109,7 @@ def deactivate():
 
 
 def link(environment_type, name_or_path):
-    __print_debug(f"link(\"{environment_type}\", \"{name_or_path}\")")
+    __print_debug(f'link("{environment_type}", "{name_or_path}")')
     if any([linked_env_file in listdir() for linked_env_file in LINKED_ENV_FILES]):
         raise Exception(
             "This directory is already linked! You can remove this by using 'unlink_py_environment'"
@@ -115,7 +118,7 @@ def link(environment_type, name_or_path):
     if environment_type == VENV_TYPE:
         with open(LINKED_ENV_FILES[0], "w") as file:
             file.write(f"{environment_type};{abspath(name_or_path)}")
-    
+
     elif environment_type == CONDA_TYPE:
         with open(LINKED_ENV_FILES[0], "w") as file:
             file.write(f"{environment_type};{name_or_path}")
@@ -123,7 +126,9 @@ def link(environment_type, name_or_path):
 
 def unlink():
     __print_debug(f"unlink()")
-    linked_files_in_working_directory = [file for file in LINKED_ENV_FILES if isfile(file)]
+    linked_files_in_working_directory = [
+        file for file in LINKED_ENV_FILES if isfile(file)
+    ]
 
     if linked_files_in_working_directory:
         for file in linked_files_in_working_directory:
@@ -142,6 +147,7 @@ def __print_debug(message):
     if DEBUG:
         print(message, file=stderr)
 
+
 def __print_information(message):
     print(message, file=stderr)
 
@@ -153,10 +159,10 @@ def __return_command(shell_command):
 def __find_nearest_environment_file(
     directory=getcwd(), priority=[LINKED_TYPE, POETRY_TYPE, VENV_TYPE, CONDA_TYPE]
 ):
-    __print_debug(f"__find_nearest_environment_file(\"{directory}\", {priority})")
-    if any([environment_type not in TYPE_TO_FILES.keys() for environment_type in priority]) or any(
-        [type(environment_type) != str for environment_type in priority]
-    ):
+    __print_debug(f'__find_nearest_environment_file("{directory}", {priority})')
+    if any(
+        [environment_type not in TYPE_TO_FILES.keys() for environment_type in priority]
+    ) or any([type(environment_type) != str for environment_type in priority]):
         raise ValueError(
             f"Only the following environment types (given as `str`) are supported! - {', '.join(TYPE_TO_FILES.keys())}"
         )
@@ -174,13 +180,15 @@ def __find_nearest_environment_file(
 
     parent_directory, not_root_directory = split(directory)
     if not_root_directory:
-        return __find_nearest_environment_file(directory=parent_directory, priority=priority)
+        return __find_nearest_environment_file(
+            directory=parent_directory, priority=priority
+        )
     else:
         return None
 
 
 def __parse_linked_environment_file(linked_environment_file):
-    __print_debug(f"__parse_linked_environment_file(\"{linked_environment_file}\")")
+    __print_debug(f'__parse_linked_environment_file("{linked_environment_file}")')
     if not isfile(linked_environment_file):
         raise ValueError(
             f"Found linked environment file ist not a file. Check: {linked_environment_file}"
@@ -203,21 +211,23 @@ def __parse_linked_environment_file(linked_environment_file):
 
 
 def __check_dependencies(command):
-    __print_debug(f"__check_dependencies(\"{command}\")")
+    __print_debug(f'__check_dependencies("{command}")')
     if which(command):
         return True
     else:
-        __print_information(f"Necessary dependency '{command}' not installed, omiting this!")
+        __print_information(
+            f"Necessary dependency '{command}' not installed, omiting this!"
+        )
         return False
 
 
 def __print_activation_message(environment_type):
-    __print_debug(f"__print_activation_message(\"{environment_type}\")")
+    __print_debug(f'__print_activation_message("{environment_type}")')
     __print_information(f"\n🐍 Try to activate '{environment_type}' environment ...\n")
 
 
 def __handle_environment_file(type, environment_file_or_name):
-    __print_debug(f"__handle_environment_file(\"{type}\", \"{environment_file_or_name}\")")
+    __print_debug(f'__handle_environment_file("{type}", "{environment_file_or_name}")')
     if type == LINKED_TYPE:
         # either path to poetry/virtualenv or conda environment name.
         environment_type, environment_path_or_name = __parse_linked_environment_file(
