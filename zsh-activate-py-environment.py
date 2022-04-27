@@ -5,10 +5,13 @@ from asyncio.log import logger
 from os import environ, getcwd, listdir, remove
 from os.path import abspath, isdir, isfile, join, split
 from shutil import which
-from sys import stderr
+from sys import stderr, argv
 
 ##########################
 ##### Some Constants #####
+
+# If True prints __print_debug statements
+DEBUG = True
 
 CONDA_TYPE = "conda"
 VENV_TYPE = "venv"
@@ -66,6 +69,10 @@ def main():
     parser_unlink.set_defaults(command_function=unlink)
 
     args = parser.parse_args()
+    args_without_filename = argv[1:]
+    quoted_args = [f'"{arg}"' for arg in args_without_filename]
+    as_log_message = ', '.join(quoted_args)
+    __print_debug(f"main({as_log_message})")
     args.command_function(
         # call given command function with parameters
         **{
@@ -77,6 +84,7 @@ def main():
 
 
 def activate():
+    __print_debug("activate()")
     type_and_environment_file = __find_nearest_environment_file()
 
     if type_and_environment_file:
@@ -126,6 +134,10 @@ def unlink():
 ############################
 ##### Helper Functions #####
 
+
+def __print_debug(message):
+    if DEBUG:
+        print(message, file=stderr)
 
 def __print_information(message):
     print(message, file=stderr)
