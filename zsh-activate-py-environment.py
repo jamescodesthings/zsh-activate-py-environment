@@ -11,7 +11,7 @@ from sys import stderr, argv
 ##### Some Constants #####
 
 # If True prints __print_debug statements
-DEBUG = True
+DEBUG = False
 
 CONDA_TYPE = "conda"
 VENV_TYPE = "venv"
@@ -210,6 +210,23 @@ def __parse_linked_environment_file(linked_environment_file):
     return environment_type.strip(), environment_path_or_name.strip()
 
 
+def __parse_conda_environment_file(env_file):
+    try:
+        with open(env_file, "r") as file:
+            contents = file.readlines()
+
+        for line in contents:
+            __print_debug(f"{line}")
+            if line.startswith("name:"):
+                env_name = line[5:].strip()
+                __print_debug(f"Found environment name: {env_name}")
+                return env_name
+    except:
+        raise Exception(
+            f"Something went wrong! Is the conda environment file malformed? - Check: {env_file}"
+        )
+
+
 def __check_dependencies(command):
     __print_debug(f'__check_dependencies("{command}")')
     if which(command):
@@ -223,7 +240,7 @@ def __check_dependencies(command):
 
 def __print_activation_message(environment_type):
     __print_debug(f'__print_activation_message("{environment_type}")')
-    __print_information(f"\n🐍 Try to activate '{environment_type}' environment ...\n")
+    __print_debug(f"\n🐍 Try to activate '{environment_type}' environment ...\n")
 
 
 def __handle_environment_file(type, environment_file_or_name):
@@ -249,7 +266,8 @@ def __handle_environment_file(type, environment_file_or_name):
 
     elif type == CONDA_TYPE:
         if __check_dependencies(CONDA_TYPE):
-            __return_command(f"conda activate {environment_file_or_name}")
+            env_name = __parse_conda_environment_file(environment_file_or_name)
+            __return_command(f"conda activate {env_name}")
             __print_activation_message(type)
 
     else:

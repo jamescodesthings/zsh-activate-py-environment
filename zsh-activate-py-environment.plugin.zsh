@@ -4,6 +4,20 @@ PATH=$(dirname "$0"):$PATH
 function activate_py_environment_if_existing()
 {
     deactivate_py_environment
+    COMMAND="$(zsh-activate-py-environment.py "activate")"
+
+    CHECK_CONDA=${COMMAND:0:14}
+    CONDA_ENV=${COMMAND:15}
+    if [[ "$CHECK_CONDA" == "conda activate" ]]; then
+      eval $COMMAND &>/dev/null
+
+      if [[ $? -ne 0 ]]; then
+        echo "Could not activate environment, create it with"
+        echo "conda env create -f [path_to_environment.yml]"
+        return 1
+      fi
+    fi
+
     eval $(zsh-activate-py-environment.py "activate")
 }
 
